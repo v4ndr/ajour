@@ -1,7 +1,8 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
+require('dotenv').config();
 
 let db;
-const url = 'mongodb+srv://vandr:v,a,n,d,e,r@aj.3rkhucf.mongodb.net/?retryWrites=true&w=majority';
+const url = process.env.DB_URI;
 
 module.exports = {
   connectToServer: (callback) => {
