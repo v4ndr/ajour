@@ -5,59 +5,75 @@ const Mangas = require('../models/Mangas');
 
 exports.load = async (req, res) => {
   const { username } = req.query;
+  if (!username) {
+    res.status(400).json({ error: 'Missing username' });
+  } else {
+    const user = Users.getUserInfos(username);
+    const allMangasName = Mangas.getAllMangasNames();
+    const receivedFriendRequests = Users.getReceivedFriendsRequests(username);
+    const sentFriendRequests = Users.getSentFriendsRequests(username);
 
-  const user = await Users.getUserInfos(username);
+    Promise.all([user, allMangasName, receivedFriendRequests, sentFriendRequests])
+      .then((values) => {
+        const [user, allMangasName, receivedFriendRequests, sentFriendRequests] = values;
+        const followedMangasName = Object.keys(user.mangas);
+        const friends = [];
+        const followedMangas = [];
+        const usersInfosPerManga = {};
+        const friendsDisplayInfos = {};
 
-  const friends = [];
-  for (const friend of user.friends) {
-    friends.push(Users.getUserInfos(friend));
-  }
+        for (const friend of user.friends) {
+          friends.push(Users.getUserInfos(friend));
+        }
+        for (const mangaName of followedMangasName) {
+          followedMangas.push(Mangas.getMangaInfos(mangaName));
+        }
 
-  const receivedFriendRequests = await Users.getReceivedFriendsRequests(username);
-  const sentFriendRequests = await Users.getSentFriendsRequests(username);
+        Promise.all(friends)
+          .then((friends) => {
+            for (const friend of friends) {
+              friendsDisplayInfos[friend.name] = {
+                avatar: friend.avatar,
+              };
+            }
+            Promise.all(followedMangas)
+              .then((followedMangas) => {
+                for (const manga of followedMangas) {
+                  const friendsAndMe = [...friends, user];
+                  const usersWhoReadIt = friendsAndMe.reduce((acc, friend) => {
+                    if (manga in friend.mangas) {
+                      const friendCpy = {};
+                      friendCpy.name = friend.name;
+                      friendCpy.numberToRead = manga.lastCh - friend.mangas[manga.name].progress;
+                      friendCpy.progress = friend.mangas[manga.name].progress;
+                      acc.push(friendCpy);
+                      return acc;
+                    }
+                    return acc;
+                  }, []);
+                  usersInfosPerManga[manga.name] = usersWhoReadIt;
+                }
 
-  const followedMangasName = Object.keys(user.mangas);
-  const followedMangas = [];
-  for (const mangaName of followedMangasName) {
-    followedMangas.push(Mangas.getMangaInfos(mangaName));
-  }
-
-  const allMangasName = await Mangas.getAllMangasNames();
-
-  const usersInfosPerManga = {};
-  Promise.all(friends).then((friends) => {
-    const friendsDisplayInfos = {};
-    // eslint-disable-next-line guard-for-in
-    for (const friend of friends) {
-      friendsDisplayInfos[friend.name] = {
-        avatar: friend.avatar,
-      };
-    }
-    Promise.all(followedMangas).then((followedMangas) => {
-      for (const manga of followedMangas) {
-        const friendsAndMe = [...friends, user];
-        const friendsWhoReadIt = friendsAndMe.reduce((acc, friend) => {
-          if (manga.name in friend.mangas) {
-            const friendCpy = {};
-            friendCpy.name = friend.name;
-            friendCpy.numberToRead = manga.lastCh - friend.mangas[manga.name].progress;
-            friendCpy.progress = friend.mangas[manga.name].progress;
-            acc.push(friendCpy);
-            return acc;
-          }
-          return acc;
-        }, []);
-        usersInfosPerManga[manga.name] = friendsWhoReadIt;
-      }
-      res.status(200).json({
-        user,
-        usersInfosPerManga,
-        followedMangas,
-        allMangasName,
-        friends: friendsDisplayInfos,
-        receivedFriendRequests,
-        sentFriendRequests,
+                res.status(200).json({
+                  user,
+                  usersInfosPerManga,
+                  followedMangas,
+                  allMangasName,
+                  friends: friendsDisplayInfos,
+                  receivedFriendRequests,
+                  sentFriendRequests,
+                });
+              })
+              .catch((err) => {
+                res.status(400).json(`load failed, error in getting mangas infos : ${err.message}`);
+              });
+          })
+          .catch((err) => {
+            res.status(400).json(`load failed, error in getting friends infos : ${err.message}`);
+          });
+      })
+      .catch((err) => {
+        res.status(400).json(`load failed, error in getting request, user or allmangas infos : ${err.message}`);
       });
-    });
-  });
+  }
 };

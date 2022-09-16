@@ -6,6 +6,7 @@ const cors = require('cors');
 const app = express();
 const server = http.createServer(app);
 const loadRoutes = require('./routes/load');
+const userRoutes = require('./routes/user');
 const connection = require('./models/connection');
 
 connection.connectToServer(async (err) => {
@@ -22,6 +23,7 @@ connection.connectToServer(async (err) => {
     }));
 
     app.use('/load', loadRoutes);
+    app.use('/user', userRoutes);
     app.use((req, res) => {
       res.setHeader('Content-Type', 'text/plain');
       res.status(404).send('FORBIDDEN');

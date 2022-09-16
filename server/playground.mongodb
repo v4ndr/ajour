@@ -7,4 +7,4 @@
 use('AJdb');
 
 
-db.users.updateMany({}, {$set: {avatar: null}})
+db.users.updateOne({name: 'vandr'}, {$unset: {'mangas.snk': 1}});
