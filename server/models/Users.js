@@ -55,10 +55,10 @@ class Users {
     return result;
   }
 
-  static async updateLastChapter(username, manga, lastChapter) {
+  static async updateProgress(username, manga, progress) {
     const db = connection.getDb();
     const key = `mangas.${manga}.progress`;
-    const result = await db.collection('users').updateOne({ name: username }, { $set: { [key]: lastChapter } });
+    const result = await db.collection('users').updateOne({ name: username }, { $set: { [key]: progress } });
     if (result.matchedCount === 0) {
       throw new Error('user not found');
     } else if (result.modifiedCount === 0) {

@@ -2,8 +2,9 @@
 /* eslint-disable no-restricted-syntax */
 const Users = require('../models/Users');
 
-exports.addMangaToUser = async (req, res) => {
-  const { username, manga } = req.body;
+exports.addManga = async (req, res) => {
+  const { username } = req.params;
+  const { manga } = req.body;
   if (!username || !manga) {
     res.status(400).json({ error: 'Missing username or manga' });
   } else {
@@ -13,8 +14,9 @@ exports.addMangaToUser = async (req, res) => {
   }
 };
 
-exports.removeMangaFromUser = async (req, res) => {
-  const { username, manga } = req.body;
+exports.removeManga = async (req, res) => {
+  const { username } = req.params;
+  const { manga } = req.body;
   if (!username || !manga) {
     res.status(400).json({ error: 'Missing username or manga' });
   } else {
@@ -24,13 +26,14 @@ exports.removeMangaFromUser = async (req, res) => {
   }
 };
 
-exports.updateLastChapter = async (req, res) => {
-  const { username, manga, lastChapter } = req.body;
-  if (!username || !manga || !lastChapter) {
-    res.status(400).json({ error: 'Missing username, manga or lastChapter' });
+exports.updateProgress = async (req, res) => {
+  const { username } = req.params;
+  const { manga, progress } = req.body;
+  if (!username || !manga || !progress) {
+    res.status(400).json({ error: 'Missing username, manga or progress' });
   } else {
-    Users.updateLastChapter(username, manga, lastChapter)
-      .then(() => res.status(200).json(`lastCh of <${manga}> updated to <${lastChapter}> for <${username}>`))
+    Users.updateProgress(username, manga, progress)
+      .then(() => res.status(200).json(`lastCh of <${manga}> updated to <${progress}> for <${username}>`))
       .catch((err) => res.status(400).json(`error when updating lastCh of <${manga}> in <${username}> : ${err.message}`));
   }
 };
