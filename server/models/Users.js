@@ -1,7 +1,7 @@
 const connection = require('./connection');
 
 class Users {
-  static async getUserInfos(username) {
+  static async getInfos(username) {
     const db = connection.getDb();
     const userInfos = await db.collection('users').find({ name: { $eq: username } }, { projection: { _id: 0 } }).toArray();
     if (userInfos.length === 0) {
@@ -10,28 +10,23 @@ class Users {
     return userInfos[0];
   }
 
-  static async getReceivedFriendsRequests(username) {
+  static async check(username) {
     const db = connection.getDb();
-    const receivedRequests = await db.collection('friendsRequests').find({ to: { $eq: username } }, { projection: { _id: 0 } }).toArray();
-    const requestsUsernames = receivedRequests.map((request) => request.from);
-    return requestsUsernames;
+    const userInfos = await db.collection('users').find({ name: { $eq: username } }, { projection: { _id: 0 } }).toArray();
+    if (userInfos.length === 0) {
+      return false;
+    }
+    return true;
   }
 
-  static async getSentFriendsRequests(username) {
-    const db = connection.getDb();
-    const sentRequests = await db.collection('friendsRequests').find({ from: { $eq: username } }, { projection: { _id: 0 } }).toArray();
-    const requestsUsernames = sentRequests.map((request) => request.to);
-    return requestsUsernames;
-  }
-
-  static async searchInUsers(query) {
+  static async search(query) {
     const db = connection.getDb();
     const re = new RegExp(`^${query}`);
     const searchResults = await db.collection('users').find({ name: { $regex: re } });
     return searchResults;
   }
 
-  static async addMangaToUser(username, manga) {
+  static async addManga(username, manga) {
     const db = connection.getDb();
     const key = `mangas.${manga}`;
     const result = await db.collection('users').updateOne({ name: username }, { $set: { [key]: { progress: 0 } } });
@@ -43,7 +38,7 @@ class Users {
     return result;
   }
 
-  static async removeMangaFromUser(username, manga) {
+  static async removeManga(username, manga) {
     const db = connection.getDb();
     const key = `mangas.${manga}`;
     const result = await db.collection('users').updateOne({ name: username }, { $unset: { [key]: 1 } });

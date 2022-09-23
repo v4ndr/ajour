@@ -2,25 +2,25 @@
 /* eslint-disable no-restricted-syntax */
 const Users = require('../models/Users');
 
-exports.addManga = async (req, res) => {
+exports.add = async (req, res) => {
   const { username } = req.params;
   const { manga } = req.body;
   if (!username || !manga) {
     res.status(400).json({ error: 'Missing username or manga' });
   } else {
-    Users.addMangaToUser(username, manga)
+    Users.addManga(username, manga)
       .then(() => res.status(200).json(`<${manga}> added to <${username}>`))
       .catch((err) => res.status(400).json(`error when adding manga to user : ${err.message}`));
   }
 };
 
-exports.removeManga = async (req, res) => {
+exports.remove = async (req, res) => {
   const { username } = req.params;
   const { manga } = req.body;
   if (!username || !manga) {
     res.status(400).json({ error: 'Missing username or manga' });
   } else {
-    Users.removeMangaFromUser(username, manga)
+    Users.removeManga(username, manga)
       .then(() => res.status(200).json(`<${manga}> removed from <${username}>`))
       .catch((err) => res.status(400).json(`error when removing manga from user : ${err.message}`));
   }

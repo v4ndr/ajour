@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 require('dotenv').config();
 const http = require('http');
 const express = require('express');
@@ -7,10 +8,11 @@ const app = express();
 const server = http.createServer(app);
 const loadRoutes = require('./routes/load');
 const usersRoutes = require('./routes/users');
+const requestsRoutes = require('./routes/requests');
 const connection = require('./models/connection');
 
 connection.connectToServer(async (err) => {
-  if (err) console.log('err : ', err);
+  if (err) console.error('err : ', err);
   else {
     app.use(express.json());
     app.use(
@@ -24,6 +26,7 @@ connection.connectToServer(async (err) => {
 
     app.use('/load', loadRoutes);
     app.use('/users', usersRoutes);
+    app.use('/requests', requestsRoutes);
     app.use((req, res) => {
       res.setHeader('Content-Type', 'text/plain');
       res.status(404).send('FORBIDDEN');

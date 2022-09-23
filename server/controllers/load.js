@@ -2,16 +2,17 @@
 /* eslint-disable no-restricted-syntax */
 const Users = require('../models/Users');
 const Mangas = require('../models/Mangas');
+const Requests = require('../models/Requests');
 
 exports.load = async (req, res) => {
   const { username } = req.query;
   if (!username) {
     res.status(400).json({ error: 'Missing username' });
   } else {
-    const user = Users.getUserInfos(username);
-    const allMangasName = Mangas.getAllMangasNames();
-    const receivedFriendRequests = Users.getReceivedFriendsRequests(username);
-    const sentFriendRequests = Users.getSentFriendsRequests(username);
+    const user = Users.getInfos(username);
+    const allMangasName = Mangas.getAllNames();
+    const receivedFriendRequests = Requests.getReceivedRequests(username);
+    const sentFriendRequests = Requests.getSentRequests(username);
 
     Promise.all([user, allMangasName, receivedFriendRequests, sentFriendRequests])
       .then((values) => {
@@ -23,10 +24,10 @@ exports.load = async (req, res) => {
         const friendsDisplayInfos = {};
 
         for (const friend of user.friends) {
-          friends.push(Users.getUserInfos(friend));
+          friends.push(Users.getInfos(friend));
         }
         for (const mangaName of followedMangasName) {
-          followedMangas.push(Mangas.getMangaInfos(mangaName));
+          followedMangas.push(Mangas.getInfos(mangaName));
         }
 
         Promise.all(friends)
