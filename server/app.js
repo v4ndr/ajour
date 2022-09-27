@@ -10,6 +10,7 @@ const loadRoutes = require('./routes/load');
 const usersRoutes = require('./routes/users');
 const requestsRoutes = require('./routes/requests');
 const connection = require('./models/connection');
+const Scrapers = require('./services/scrapers');
 
 connection.connectToServer(async (err) => {
   if (err) console.error('err : ', err);
@@ -27,6 +28,11 @@ connection.connectToServer(async (err) => {
     app.use('/load', loadRoutes);
     app.use('/users', usersRoutes);
     app.use('/requests', requestsRoutes);
+    app.get('/', async (req, res) => {
+      Scrapers.op(2)
+        .then((results) => res.status(200).json(results))
+        .catch((error) => res.status(400).json(error));
+    });
     app.use((req, res) => {
       res.setHeader('Content-Type', 'text/plain');
       res.status(404).send('FORBIDDEN');
