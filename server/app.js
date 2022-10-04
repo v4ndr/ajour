@@ -10,7 +10,7 @@ const loadRoutes = require('./routes/load');
 const usersRoutes = require('./routes/users');
 const requestsRoutes = require('./routes/requests');
 const connection = require('./models/connection');
-const Scrapers = require('./services/scrapers');
+const updateReleaseDate = require('./services/updateReleaseDate');
 
 connection.connectToServer(async (err) => {
   if (err) console.error('err : ', err);
@@ -29,7 +29,7 @@ connection.connectToServer(async (err) => {
     app.use('/users', usersRoutes);
     app.use('/requests', requestsRoutes);
     app.get('/', async (req, res) => {
-      Scrapers.op(2)
+      updateReleaseDate('op')
         .then((results) => res.status(200).json(results))
         .catch((error) => res.status(400).json(error));
     });
