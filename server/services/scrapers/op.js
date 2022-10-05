@@ -59,6 +59,7 @@ class op {
     await page.waitForSelector('.TitleDetail-module_updateInfo_2MITq', { timeout: 5_000 });
     const $ = cheerio.load(await page.content());
     let releaseDate = $('[class^="TitleDetail-module_updateInfo"]').text();
+
     releaseDate = releaseDate.split(',')[1].trim();
     const today = new Date();
     const year = today.getUTCFullYear();
@@ -71,11 +72,10 @@ class op {
     if (releaseDate.getMonth() < today.getUTCMonth()) {
       releaseDate.setFullYear(releaseDate.getFullYear() + 1);
     }
-    if (releaseDate < today) {
-      releaseDate = null;
-    }
+
     await page.close();
     await browser.close();
+
     return releaseDate;
   }
 }

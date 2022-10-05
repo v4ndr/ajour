@@ -41,6 +41,18 @@ class Mangas {
     }
     return `<${newChaps.length}> chpaters updated for <${mangaName}>`;
   }
+
+  static async updateReleaseDate(mangaName, releaseDate) {
+    const db = connection.getDb();
+    const [releaseDateString] = releaseDate.toISOString().split('T');
+    const result = await db.collection('mangas').updateOne({ name: mangaName }, { $set: { dateOfNextCh: releaseDateString } });
+    if (result.matchedCount === 0) {
+      throw new Error('manga not found');
+    } else if (result.modifiedCount === 0) {
+      throw new Error('error while updating release date');
+    }
+    return `release date updated for <${mangaName}>`;
+  }
 }
 
 module.exports = Mangas;
