@@ -30,10 +30,11 @@ class Mangas {
 
   static async updateChaps(mangaName, newChaps) {
     const db = connection.getDb();
+    const newChapNumber = parseInt(newChaps[0].chapter, 10);
     const [results] = await db.collection('mangas').find({ name: { $eq: mangaName } }, { projection: { _id: 0, chaps: 1 } }).toArray();
     const dbChaps = results.chaps;
     const utdChaps = newChaps.concat(dbChaps);
-    const result = await db.collection('mangas').updateOne({ name: mangaName }, { $set: { chaps: utdChaps } });
+    const result = await db.collection('mangas').updateOne({ name: mangaName }, { $set: { chaps: utdChaps, lastCh: newChapNumber } });
     if (result.matchedCount === 0) {
       throw new Error('manga not found');
     } else if (result.modifiedCount === 0) {

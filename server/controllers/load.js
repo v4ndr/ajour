@@ -42,7 +42,7 @@ exports.load = async (req, res) => {
                 for (const manga of followedMangas) {
                   const friendsAndMe = [...friends, user];
                   const usersWhoReadIt = friendsAndMe.reduce((acc, friend) => {
-                    if (manga in friend.mangas) {
+                    if (manga.name in friend.mangas) {
                       const friendCpy = {};
                       friendCpy.name = friend.name;
                       friendCpy.numberToRead = manga.lastCh - friend.mangas[manga.name].progress;

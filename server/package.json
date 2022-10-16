@@ -9,6 +9,7 @@
         "express": "^4.17.1",
         "mongodb": "^4.4.1",
         "node-fetch": "^2.6.7",
+        "node-schedule": "^2.1.0",
         "puppeteer": "^18.0.5"
     },
     "devDependencies": {
